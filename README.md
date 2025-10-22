@@ -11,7 +11,7 @@ Link to git repository:
 
 ```
 dependencies = [
-  "flet-image-editor @ git+https://github.com/MyGithubAccount/flet-image-editor",
+  "flet-image-editor @ git+https://github.com/wanna-pizza/pro_image_editor",
   "flet>=0.28.3",
 ]
 ```

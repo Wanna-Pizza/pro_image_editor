@@ -13,9 +13,9 @@ dependencies = [
 
 [project.urls]
 Homepage = "https://mydomain.dev"
-Documentation = "https://github.com/MyGithubAccount/flet-image-editor"
-Repository = "https://github.com/MyGithubAccount/flet-image-editor"
-Issues = "https://github.com/MyGithubAccount/flet-image-editor/issues"
+Documentation = "https://github.com/wanna-pizza/pro_image_editor"
+Repository = "https://github.com/wanna-pizza/pro_image_editor"
+Issues = "https://github.com/wanna-pizza/pro_image_editor/issues"
 
 [tool.setuptools.package-data]
 "flutter.flet_image_editor" = ["**/*"]
