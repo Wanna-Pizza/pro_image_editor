@@ -4,9 +4,9 @@ Version: 0.1.0
 Summary: FletImageEditor control for Flet
 Author-email: Flet contributors <you@example.com>
 Project-URL: Homepage, https://mydomain.dev
-Project-URL: Documentation, https://github.com/MyGithubAccount/flet-image-editor
-Project-URL: Repository, https://github.com/MyGithubAccount/flet-image-editor
-Project-URL: Issues, https://github.com/MyGithubAccount/flet-image-editor/issues
+Project-URL: Documentation, https://github.com/wanna-pizza/pro_image_editor
+Project-URL: Repository, https://github.com/wanna-pizza/pro_image_editor
+Project-URL: Issues, https://github.com/wanna-pizza/pro_image_editor/issues
 Requires-Python: >=3.9
 Description-Content-Type: text/markdown
 Requires-Dist: flet>=0.28.3
@@ -24,7 +24,7 @@ Link to git repository:
 
 ```
 dependencies = [
-  "flet-image-editor @ git+https://github.com/MyGithubAccount/flet-image-editor",
+  "flet-image-editor @ git+https://github.com/wanna-pizza/pro_image_editor",
   "flet>=0.28.3",
 ]
 ```

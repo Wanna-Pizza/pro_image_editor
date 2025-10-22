@@ -10,6 +10,7 @@ authors = [
 dependencies = [
   "flet-image-editor",
   "flet>=0.28.3",
+  "pillow>=11.3.0",
 ]
 
 [tool.flet]
