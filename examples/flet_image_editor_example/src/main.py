@@ -3,6 +3,8 @@ import flet as ft
 import base64
 from PIL import Image
 import io
+from assets.fonts import FONTS
+import random
 
 from flet_image_editor import (
     WidgetType,
@@ -16,13 +18,14 @@ from flet_image_editor import (
 
 
 def main(page: ft.Page):
+    page.fonts = FONTS
+    page.update()
 
     def on_edit(e: EditEvent):
         if e.widget_type == WidgetType.TEXT:
             print(f"Edit event received for widget type: {e.widget_type}")
-            new_value = "ABOBA FUCKKK"
             image_editor.change_text(
-                text=new_value
+                font_family=random.choice(list(FONTS.keys())),
             )
     
     def on_save(e: SaveEvent):
@@ -80,7 +83,7 @@ def main(page: ft.Page):
             ),
             ft.ElevatedButton(
                 "add Text",
-                on_click=lambda e: image_editor.add_text("New Text Widget")
+                on_click=lambda e: image_editor.add_text("New Text Widget", color="#868686")
             ),
             ft.ElevatedButton(
                 "Save",

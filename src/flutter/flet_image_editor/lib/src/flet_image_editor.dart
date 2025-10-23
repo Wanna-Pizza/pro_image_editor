@@ -132,7 +132,7 @@ class _FletImageEditorControlState extends State<FletImageEditorControl> {
     _debugPrintPython("Successfully added image: $path");
   }
 
-  void changeTextValue(String value) {
+  void updateTextDrawable(String? value, String? fontFamily) {
     final selected = controller.selectedWidget;
     if (selected == null) {
       debugPrint("❌ No active widget selected");
@@ -143,16 +143,20 @@ class _FletImageEditorControlState extends State<FletImageEditorControl> {
       debugPrint("⚠️ Selected widget is not a Text widget");
       return;
     }
+
+    final currentText = selected.child as Text;
+    final currentStyle = currentText.style ?? const TextStyle();
     
+    TextStyle newStyle = currentStyle.copyWith(
+      fontFamily: fontFamily ?? currentStyle.fontFamily,
+      color: currentStyle.color ?? Colors.white,
+    );
+
     setState(() {
       selected.edit(
         Text(
-          value,
-          style: const TextStyle(
-            color: Colors.white,
-            fontSize: 24,
-            fontWeight: FontWeight.bold,
-          ),
+          value ?? currentText.data ?? "",
+          style: newStyle,
         ),
       );
     });
@@ -283,7 +287,7 @@ class _FletImageEditorControlState extends State<FletImageEditorControl> {
         break;
 
       case "changeText":
-        changeTextValue(args["text"] ?? "");
+        updateTextDrawable(args["text"], args["fontFamily"]);
         break;
 
       case "saveImage":

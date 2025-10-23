@@ -1,7 +1,9 @@
 import 'dart:math';
+import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'lindi_sticker_widget.dart';
+import 'lindi_controller.dart';
 
 /// Define a callback type for LindiGestureDetector updates.
 ///
@@ -20,6 +22,10 @@ class LindiGestureDetector extends StatefulWidget {
   final Widget child;
 
   final GlobalKey centerKey;
+
+  /// Reference to the controller for snapping functionality
+  ///
+  final LindiController controller;
 
   /// Control flags for various gesture types (translate, scale, rotate).
   ///
@@ -55,6 +61,7 @@ class LindiGestureDetector extends StatefulWidget {
   const LindiGestureDetector(
       {super.key,
       required this.centerKey,
+      required this.controller,
       required this.onUpdate,
       required this.child,
       this.shouldTranslate = true,
@@ -90,6 +97,16 @@ class LindiGestureDetectorState extends State<LindiGestureDetector> {
 
   Offset centerOffset = Offset.zero;
 
+  // Snapping state
+  Timer? _guidelineTimer;
+  Offset? _lastTranslation;
+
+  @override
+  void dispose() {
+    _guidelineTimer?.cancel();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     // Wrap the child widget in a ClipRect if clipping is enabled.
@@ -123,6 +140,14 @@ class LindiGestureDetectorState extends State<LindiGestureDetector> {
 
   // Callback when a scale gesture starts.
   void onDragStart(details) {
+    // Hide guidelines when starting a new drag
+    if (widget.controller.enableSnapping) {
+      _guidelineTimer?.cancel();
+      widget.controller.verticalGuidelineVisible.value = false;
+      widget.controller.horizontalGuidelineVisible.value = false;
+      _lastTranslation = null;
+    }
+    
     if (details is ScaleStartDetails) {
       widget.onScaleStart(true);
       translationUpdater.value = details.focalPoint;
@@ -153,6 +178,76 @@ class LindiGestureDetectorState extends State<LindiGestureDetector> {
     } else {
       //Pan End
     }
+    
+    // Hide guidelines after a short delay
+    if (widget.controller.enableSnapping) {
+      _guidelineTimer?.cancel();
+      _guidelineTimer = Timer(const Duration(milliseconds: 100), () {
+        widget.controller.verticalGuidelineVisible.value = false;
+        widget.controller.horizontalGuidelineVisible.value = false;
+      });
+    }
+  }
+
+  /// Check if the widget should snap to center guidelines
+  Offset _checkSnapAlignment(Offset translation) {
+    if (!widget.controller.enableSnapping) {
+      return translation;
+    }
+
+    // Get the parent (canvas) size
+    final RenderBox? parentRenderBox = LindiStickerWidget.globalKey.currentContext
+        ?.findRenderObject() as RenderBox?;
+    
+    if (parentRenderBox == null) {
+      return translation;
+    }
+
+    final Size parentSize = parentRenderBox.size;
+    final Offset parentCenter = Offset(parentSize.width / 2, parentSize.height / 2);
+
+    // Get widget center in parent coordinates
+    final RenderBox? childRenderBox =
+        widget.centerKey.currentContext?.findRenderObject() as RenderBox?;
+    
+    if (childRenderBox == null) {
+      return translation;
+    }
+
+    final Offset childGlobalPosition = childRenderBox.localToGlobal(Offset.zero);
+    final Offset parentGlobalPosition = parentRenderBox.localToGlobal(Offset.zero);
+    final Offset childRelativePosition = childGlobalPosition - parentGlobalPosition;
+    final Size childSize = childRenderBox.size;
+    final Offset widgetCenter = childRelativePosition + Offset(childSize.width / 2, childSize.height / 2);
+
+    // Calculate distance from widget center to parent center
+    final double vDistance = (widgetCenter.dx - parentCenter.dx).abs();
+    final double hDistance = (widgetCenter.dy - parentCenter.dy).abs();
+
+    double adjustedDx = translation.dx;
+    double adjustedDy = translation.dy;
+
+    // Reset guideline visibility
+    widget.controller.verticalGuidelineVisible.value = false;
+    widget.controller.horizontalGuidelineVisible.value = false;
+
+    // Check vertical snapping (X-axis)
+    if (vDistance < widget.controller.snapThreshold) {
+      // Calculate the snap offset needed
+      final double snapOffset = parentCenter.dx - widgetCenter.dx;
+      adjustedDx = translation.dx + snapOffset;
+      widget.controller.verticalGuidelineVisible.value = true;
+    }
+
+    // Check horizontal snapping (Y-axis)
+    if (hDistance < widget.controller.snapThreshold) {
+      // Calculate the snap offset needed
+      final double snapOffset = parentCenter.dy - widgetCenter.dy;
+      adjustedDy = translation.dy + snapOffset;
+      widget.controller.horizontalGuidelineVisible.value = true;
+    }
+
+    return Offset(adjustedDx, adjustedDy);
   }
 
   // Callback for handling scale updates.
@@ -184,6 +279,30 @@ class LindiGestureDetectorState extends State<LindiGestureDetector> {
     // Handle translation.
     if (widget.shouldTranslate && details is ScaleUpdateDetails) {
       Offset translationDelta = translationUpdater.update(details.focalPoint);
+      
+      // Apply snapping if enabled
+      if (widget.controller.enableSnapping) {
+        // Store the accumulated translation
+        if (_lastTranslation == null) {
+          _lastTranslation = Offset.zero;
+        }
+        
+        // Calculate what the new translation would be
+        Offset potentialTranslation = Offset(
+          matrix.getTranslation().x + translationDelta.dx,
+          matrix.getTranslation().y + translationDelta.dy,
+        );
+        
+        // Check for snapping and adjust
+        Offset snappedTranslation = _checkSnapAlignment(potentialTranslation);
+        
+        // Calculate the adjusted delta
+        translationDelta = Offset(
+          snappedTranslation.dx - matrix.getTranslation().x,
+          snappedTranslation.dy - matrix.getTranslation().y,
+        );
+      }
+      
       translationDeltaMatrix = _translate(translationDelta);
       matrix = translationDeltaMatrix * matrix;
     }

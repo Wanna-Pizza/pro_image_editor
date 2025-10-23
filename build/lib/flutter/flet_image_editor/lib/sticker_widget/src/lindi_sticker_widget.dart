@@ -68,7 +68,45 @@ class _LindiStickerWidgetState extends State<LindiStickerWidget> {
               fit: StackFit.expand,
               children: widget.controller.widgets,
             ),
-          )
+          ),
+          // Vertical guideline
+          if (widget.controller.enableSnapping)
+            ValueListenableBuilder<bool>(
+              valueListenable: widget.controller.verticalGuidelineVisible,
+              builder: (context, visible, child) {
+                return Visibility(
+                  visible: visible,
+                  child: Positioned(
+                    left: MediaQuery.of(context).size.width / 2 - 0.5,
+                    top: 0,
+                    bottom: 0,
+                    child: Container(
+                      width: 1,
+                      color: Colors.blue.withOpacity(0.7),
+                    ),
+                  ),
+                );
+              },
+            ),
+          // Horizontal guideline
+          if (widget.controller.enableSnapping)
+            ValueListenableBuilder<bool>(
+              valueListenable: widget.controller.horizontalGuidelineVisible,
+              builder: (context, visible, child) {
+                return Visibility(
+                  visible: visible,
+                  child: Positioned(
+                    top: MediaQuery.of(context).size.height / 2 - 0.5,
+                    left: 0,
+                    right: 0,
+                    child: Container(
+                      height: 1,
+                      color: Colors.blue.withOpacity(0.7),
+                    ),
+                  ),
+                );
+              },
+            ),
         ],
       ),
     );

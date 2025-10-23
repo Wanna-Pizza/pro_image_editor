@@ -12,6 +12,7 @@ src/flutter/flet_image_editor/LICENSE
 src/flutter/flet_image_editor/README.md
 src/flutter/flet_image_editor/pubspec.lock
 src/flutter/flet_image_editor/pubspec.yaml
+src/flutter/flet_image_editor/example/snapping_example.dart
 src/flutter/flet_image_editor/lib/flet_image_editor.dart
 src/flutter/flet_image_editor/lib/src/create_control.dart
 src/flutter/flet_image_editor/lib/src/flet_image_editor.dart

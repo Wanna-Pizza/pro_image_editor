@@ -8,6 +8,7 @@ import 'positioned_align.dart';
 ///
 //ignore: must_be_immutable
 class DraggableWidget extends StatelessWidget {
+  late LindiController _controller;
   late List<LindiStickerIcon> _icons;
 
   /// Properties to customize the appearance and behavior of the widget.
@@ -77,6 +78,7 @@ class DraggableWidget extends StatelessWidget {
   ///
   DraggableWidget(
       {super.key,
+      required controller,
       required icons,
       required this.child,
       required position,
@@ -94,6 +96,7 @@ class DraggableWidget extends StatelessWidget {
       required onDone,
       required onLayer,
       required insidePadding}) {
+    _controller = controller;
     _icons = icons;
     _position = position;
     _borderColor = borderColor;
@@ -175,6 +178,7 @@ class DraggableWidget extends StatelessWidget {
           // LindiGestureDetector for handling scaling, rotating, and translating the widget.
           return LindiGestureDetector(
             centerKey: centerKey,
+            controller: _controller,
             shouldTranslate: _showBorder ? _shouldMove : false,
             shouldRotate: _showBorder ? _shouldRotate : false,
             shouldScale: _showBorder ? _shouldScale : false,

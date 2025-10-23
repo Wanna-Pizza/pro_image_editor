@@ -112,8 +112,6 @@ class FletImageEditor(ConstrainedControl):
         self.on_save = on_save
         self.on_debug = on_debug
         self.on_edit = on_edit
-
-        print(f"🎯 FletImageEditor initialized with handlers - on_save: {on_save is not None}, on_debug: {on_debug is not None}, on_edit: {on_edit is not None}")
         
         self._add_event_handler("on_save", self.__on_save.get_handler())
         self._add_event_handler("debugPrint", self.__on_debug.get_handler())

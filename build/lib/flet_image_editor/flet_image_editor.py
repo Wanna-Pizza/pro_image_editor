@@ -39,16 +39,24 @@ class SaveEvent(ControlEvent):
                 print(f"❌ SaveEvent: Failed to decode base64 data: {ex}")
 
 
+class WidgetType(Enum):
+    IMAGE = "image"
+    TEXT = "text"
+
 class DebugEvent(ControlEvent):
     def __init__(self, e: ControlEvent):
         super().__init__(e.target, e.name, e.data, e.control, e.page)
 
-
 class EditEvent(ControlEvent):
     def __init__(self, e: ControlEvent):
         super().__init__(e.target, e.name, e.data, e.control, e.page)
-        self.widget_type: str = e.data if e.data else "unknown"
-
+        self.widget_type = None
+        if e.data:
+            try:
+                widget_type_str = e.data if isinstance(e.data, str) else str(e.data)
+                self.widget_type = WidgetType(widget_type_str) if widget_type_str in WidgetType._value2member_map_ else None
+            except (ValueError, AttributeError):
+                self.widget_type = None
 
 class FletImageEditor(ConstrainedControl):
     """
@@ -104,8 +112,6 @@ class FletImageEditor(ConstrainedControl):
         self.on_save = on_save
         self.on_debug = on_debug
         self.on_edit = on_edit
-
-        print(f"🎯 FletImageEditor initialized with handlers - on_save: {on_save is not None}, on_debug: {on_debug is not None}, on_edit: {on_edit is not None}")
         
         self._add_event_handler("on_save", self.__on_save.get_handler())
         self._add_event_handler("debugPrint", self.__on_debug.get_handler())

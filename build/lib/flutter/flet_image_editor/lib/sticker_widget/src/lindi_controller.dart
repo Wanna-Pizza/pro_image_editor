@@ -91,6 +91,23 @@ class LindiController extends ChangeNotifier {
   ///
   double insidePadding;
 
+  /// Enable snapping to center guidelines
+  ///
+  /// Defaults to true
+  ///
+  bool enableSnapping;
+
+  /// Snap threshold in pixels
+  ///
+  /// Defaults to 20
+  ///
+  double snapThreshold;
+
+  /// Notifiers for guideline visibility
+  ///
+  final ValueNotifier<bool> verticalGuidelineVisible = ValueNotifier(false);
+  final ValueNotifier<bool> horizontalGuidelineVisible = ValueNotifier(false);
+
   /// Stream to listen selected index
   ///
   final IndexStream<int> _selectedIndex = IndexStream<int>();
@@ -112,7 +129,9 @@ class LindiController extends ChangeNotifier {
       this.tapToSelect = true,
       this.minScale = 0.5,
       this.maxScale = 4,
-      this.insidePadding = 13}) {
+      this.insidePadding = 13,
+      this.enableSnapping = true,
+      this.snapThreshold = 20}) {
     onPositionChange();
   }
 
@@ -124,6 +143,7 @@ class LindiController extends ChangeNotifier {
     // Create a DraggableWidget with specified properties.
     widgets.add(DraggableWidget(
         key: key,
+        controller: this,
         icons: icons,
         borderColor: borderColor,
         borderWidth: borderWidth,
@@ -194,6 +214,8 @@ class LindiController extends ChangeNotifier {
 
   close() {
     _selectedIndex.close();
+    verticalGuidelineVisible.dispose();
+    horizontalGuidelineVisible.dispose();
   }
 
   // Method to highlight the border of a specific widget.
